@@ -1,0 +1,40 @@
+import { Post, User } from "@prisma/client";
+import { prisma } from "~/db.server";
+
+export function getPosts() {
+  return prisma.post.findMany();
+}
+
+export function getAllPosts() {
+  return prisma.post.findMany();
+}
+
+export function findPost(id: string) {
+  return prisma.post.findFirst({ where: { id }, rejectOnNotFound: true });
+}
+
+export function deletePost(id: string) {
+  return prisma.post.delete({
+    where: { id },
+  });
+}
+
+export function createPost({
+  body,
+  title,
+  userId,
+}: Pick<Post, "body" | "title"> & {
+  userId: User["id"];
+}) {
+  return prisma.post.create({
+    data: {
+      title,
+      body,
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
+    },
+  });
+}
