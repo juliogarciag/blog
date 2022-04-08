@@ -10,7 +10,7 @@ type LoaderData = {
   post: Post;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader: LoaderFunction = async ({ params }) => {
   const post = await findPost(params.postId as string);
   return json<LoaderData>({ post });
 };

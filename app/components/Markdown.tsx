@@ -11,6 +11,8 @@ export default function Markdown({
       options={{
         overrides: {
           p: { props: { className: "my-6" } },
+          ul: { props: { className: "list-disc ml-8" } },
+          ol: { props: { className: "list-decimal ml-8" } },
         },
       }}
     >
