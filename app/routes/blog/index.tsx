@@ -86,7 +86,7 @@ function PostPreview({
   post: FrontendTyped<LoaderData>["posts"][number];
 }) {
   return (
-    <Link to={`/blog/${post.id}`} className="block">
+    <Link to={`/blog/${post.id}`} className="flex flex-col space-y-2">
       <h3 className="text-2xl font-medium text-yellow-700 hover:text-yellow-900">
         {post.title}
       </h3>
