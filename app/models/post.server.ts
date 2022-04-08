@@ -38,3 +38,27 @@ export function createPost({
     },
   });
 }
+
+export function updatePost(
+  id: string,
+  {
+    body,
+    title,
+    userId,
+  }: Pick<Post, "body" | "title"> & {
+    userId: User["id"];
+  }
+) {
+  return prisma.post.update({
+    where: { id },
+    data: {
+      title,
+      body,
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
+    },
+  });
+}
