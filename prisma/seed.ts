@@ -17,22 +17,29 @@ async function seed() {
 
 async function ensureUser() {
   const hashedPassword = await bcrypt.hash(SEED_USER_PASSWORD, 10);
-  const userAttributes = {
-    email: SEED_USER_EMAIL,
-    password: {
-      create: {
-        hash: hashedPassword,
-      },
-    },
-  };
   const user = await db.user.findUnique({ where: { email: SEED_USER_EMAIL } });
+
   if (user) {
     return await db.user.update({
       where: { id: user.id },
-      data: userAttributes,
+      data: {
+        email: SEED_USER_EMAIL,
+        password: {
+          update: { hash: hashedPassword },
+        },
+      },
     });
   } else {
-    return await db.user.create({ data: userAttributes });
+    return await db.user.create({
+      data: {
+        email: SEED_USER_EMAIL,
+        password: {
+          create: {
+            hash: hashedPassword,
+          },
+        },
+      },
+    });
   }
 }
 
