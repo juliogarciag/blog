@@ -1,7 +1,5 @@
 describe("smoke tests", () => {
-  afterEach(() => {
-    cy.cleanupUser();
-  });
+  afterEach(() => {});
 
   it("does something", () => {
     cy.visit("/");
