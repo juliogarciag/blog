@@ -1,5 +1,6 @@
 import { Post, User } from "@prisma/client";
 import { prisma } from "~/db.server";
+import { throwNotFoundResponse } from "~/utils";
 
 export function getPosts() {
   return prisma.post.findMany();
@@ -10,7 +11,10 @@ export function getAllPosts() {
 }
 
 export function findPost(id: string) {
-  return prisma.post.findFirst({ where: { id }, rejectOnNotFound: true });
+  return prisma.post.findFirst({
+    where: { id },
+    rejectOnNotFound: throwNotFoundResponse,
+  });
 }
 
 export function deletePost(id: string) {

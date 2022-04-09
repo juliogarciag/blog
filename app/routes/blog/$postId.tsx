@@ -31,17 +31,11 @@ export default function PostPage() {
   );
 }
 
-export function ErrorBoundary({ error }: { error: Error }) {
-  console.error(error);
-
-  return <div>An unexpected error occurred: {error.message}</div>;
-}
-
 export function CatchBoundary() {
   const caught = useCatch();
 
   if (caught.status === 404) {
-    return <div>Post not found</div>;
+    return <div>There's no post with this id.</div>;
   }
 
   throw new Error(`Unexpected caught response with status: ${caught.status}`);

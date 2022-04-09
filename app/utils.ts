@@ -53,3 +53,10 @@ export type FrontendTyped<Data extends object> = {
     ? FrontendTyped<Data[Key]>
     : Data[Key];
 };
+
+export function throwNotFoundResponse(): Error {
+  // Prisma types want this function to throw an Error but Remix needs
+  // this thrown object to be a response at runtime so this tricks Prisma
+  // into thinking this is an Error.
+  return new Response("Not Found", { status: 404 }) as unknown as Error;
+}

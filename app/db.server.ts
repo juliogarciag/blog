@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaClientOptions } from "@prisma/client/runtime";
 
 let prisma: PrismaClient;
 
