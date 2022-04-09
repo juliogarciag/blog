@@ -40,6 +40,7 @@ export const meta: MetaFunction = () => ({
   charset: "utf-8",
   title: "Julio García Gonzales",
   viewport: "width=device-width,initial-scale=1",
+  description: "Blog from Julio García",
 });
 
 type LoaderData = {
