@@ -1,9 +1,10 @@
 import { Post } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData, useCatch, useLoaderData } from "@remix-run/react";
-import { MouseEvent, useRef } from "react";
+import { useActionData, useCatch, useLoaderData } from "@remix-run/react";
+import { MouseEvent } from "react";
 import invariant from "tiny-invariant";
+import PostForm from "~/components/admin/PostForm";
 import { deletePost, findPost, updatePost } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 
@@ -58,9 +59,6 @@ export default function AdminPostPage() {
   const data = useLoaderData() as LoaderData;
   const actionData = useActionData() as ActionData;
 
-  const titleRef = useRef<HTMLInputElement>(null);
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
-
   const confirmDeletion = (event: MouseEvent<HTMLButtonElement>) => {
     const confirmed = confirm("Are you sure you want to delete this post?");
     if (!confirmed) {
@@ -70,61 +68,11 @@ export default function AdminPostPage() {
 
   return (
     <div>
-      <Form
-        method="post"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 8,
-          width: "100%",
-        }}
-      >
-        <div>
-          <label className="flex w-full flex-col gap-1">
-            <span>Title: </span>
-            <input
-              ref={titleRef}
-              name="title"
-              defaultValue={data.post.title}
-              className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-              aria-invalid={actionData?.errors?.title ? true : undefined}
-              aria-errormessage={
-                actionData?.errors?.title ? "title-error" : undefined
-              }
-            />
-          </label>
-          {actionData?.errors?.title && (
-            <div className="pt-1 text-red-700" id="title-error">
-              {actionData.errors.title}
-            </div>
-          )}
-        </div>
-        <div>
-          <label className="flex w-full flex-col gap-1">
-            <span>Body: </span>
-            <textarea
-              ref={bodyRef}
-              name="body"
-              rows={8}
-              defaultValue={data.post.body}
-              className="w-full flex-1 rounded-md border-2 border-blue-500 py-2 px-3 text-lg leading-6"
-              aria-invalid={actionData?.errors?.body ? true : undefined}
-              aria-errormessage={
-                actionData?.errors?.body ? "body-error" : undefined
-              }
-            />
-          </label>
-        </div>
-        <hr className="my-4" />
-        <div className="flex space-x-4">
-          <button
-            type="submit"
-            className="rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
-            name="_action"
-            value={ActionTypes.Update}
-          >
-            Update
-          </button>
+      <PostForm
+        post={data.post}
+        actionType={ActionTypes.Update}
+        actionData={actionData}
+        moreActions={
           <button
             type="submit"
             className="rounded bg-red-500  py-2 px-4 text-white hover:bg-red-600 focus:bg-red-400"
@@ -134,8 +82,8 @@ export default function AdminPostPage() {
           >
             Delete
           </button>
-        </div>
-      </Form>
+        }
+      />
     </div>
   );
 }

@@ -38,8 +38,8 @@ export default function AdminRoot() {
       </header>
 
       <main className="flex h-full bg-white">
-        <div className="h-full w-80 border-r bg-gray-50">
-          <Link to="new" className="block p-4 text-xl text-blue-500">
+        <div className="h-full w-64 border-r bg-gray-50">
+          <Link to="new" className="block p-4 text-lg text-blue-500">
             + New Post
           </Link>
 
@@ -53,7 +53,7 @@ export default function AdminRoot() {
                 <li key={post.id}>
                   <NavLink
                     className={({ isActive }) =>
-                      `block border-b p-4 text-xl ${isActive ? "bg-white" : ""}`
+                      `block border-b p-4 text-lg ${isActive ? "bg-white" : ""}`
                     }
                     to={post.id}
                   >
