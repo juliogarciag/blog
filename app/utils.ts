@@ -60,3 +60,7 @@ export function throwNotFoundResponse(): Error {
   // into thinking this is an Error.
   return new Response("Not Found", { status: 404 }) as unknown as Error;
 }
+
+export function classNames(classes: string) {
+  return classes;
+}
