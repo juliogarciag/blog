@@ -3,7 +3,11 @@ import { prisma } from "~/db.server";
 import { throwNotFoundResponse } from "~/utils";
 
 export function getPosts() {
-  return prisma.post.findMany();
+  return prisma.post.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 }
 
 export function getAllPosts() {
