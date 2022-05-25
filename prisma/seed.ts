@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { readFile } from "fs/promises";
 import glob from "glob";
 import path from "path";
+import { getNewSortDiscriminator } from "~/models/movement.server";
 
 const db = new PrismaClient();
 
@@ -12,6 +13,7 @@ const SEED_USER_PASSWORD = process.env.SEED_USER_PASSWORD ?? "";
 async function seed() {
   const user = await ensureUser();
   await ensureSamplePosts(user);
+  await ensureSampleMovements(user);
   console.log(`Database has been seeded. 🌱`);
 }
 
@@ -71,7 +73,20 @@ async function ensureSamplePosts(user: User) {
       }
     }
   }
-  // 2. If no posts, create 4 sample posts out of sample markdown files.
+}
+
+async function ensureSampleMovements(user: User) {
+  if ((await db.movement.count()) === 0) {
+    await db.movement.create({
+      data: {
+        userId: user.id,
+        description: "Initial Movement",
+        date: new Date(2017, 1, 1),
+        amountInCents: 7947.64 * 100,
+        sortDiscriminator: await getNewSortDiscriminator(),
+      },
+    });
+  }
 }
 
 seed()
