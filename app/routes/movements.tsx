@@ -1,9 +1,16 @@
+import type { Movement } from "@prisma/client";
 import { Form, Link, useLoaderData, useSubmit } from "@remix-run/react";
-import type { LoaderFunction } from "@remix-run/server-runtime";
-import { json } from "@remix-run/server-runtime";
+import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
+import { json, redirect } from "@remix-run/server-runtime";
+import { parseISO } from "date-fns";
 import type { FocusEvent, KeyboardEvent } from "react";
-import { useCallback } from "react";
-import { getUserMovements } from "~/models/movement.server";
+import { useCallback, useEffect, useRef } from "react";
+import {
+  createNewMovementAfterId,
+  deleteMovementById,
+  getUserMovements,
+  updateMovement,
+} from "~/models/movement.server";
 import { requireUserId } from "~/session.server";
 
 type LoaderData = {
@@ -16,6 +23,50 @@ export const loader: LoaderFunction = async ({ request }) => {
     movements: await getUserMovements(userId),
   });
 };
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  const action = formData.get("_action");
+  const movementId = formData.get("movementId") as string;
+
+  if (action === "create") {
+    await createNewMovementAfterId(movementId);
+  }
+
+  if (action === "delete") {
+    await deleteMovementById(movementId);
+  }
+
+  if (action === "update") {
+    const { movementId, ...attributes } = getUpdateAttributes(formData);
+    await updateMovement(movementId!, attributes);
+  }
+
+  return redirect("/movements");
+};
+
+function getUpdateAttributes(formData: FormData) {
+  const attributes: Partial<Movement> & { movementId?: Movement["id"] } = {};
+
+  attributes.movementId = formData.get("movementId") as string;
+
+  const descriptionInput = formData.get("description") as string;
+  if (descriptionInput !== undefined && descriptionInput !== null) {
+    attributes.description = descriptionInput;
+  }
+
+  const dateInput = formData.get("date") as string;
+  if (dateInput !== undefined && dateInput !== null) {
+    attributes.date = parseISO(dateInput);
+  }
+
+  const amountInput = formData.get("amount") as string;
+  if (amountInput !== undefined && amountInput != null) {
+    attributes.amountInCents = BigInt(Number(amountInput) * 100);
+  }
+
+  return attributes;
+}
 
 export default function Movements() {
   const { movements } = useLoaderData<LoaderData>();
@@ -50,6 +101,14 @@ function MovementDescription({
 }: {
   movement: LoaderData["movements"][number];
 }) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.value = movement.description;
+    }
+  }, [movement.description]);
+
   const submit = useSubmit();
   const handleBlur = useCallback(
     (event: FocusEvent<HTMLInputElement>) => {
@@ -68,12 +127,13 @@ function MovementDescription({
   );
 
   return (
-    <Form method="patch" action="/movements/update">
-      <input type="hidden" name="attribute" value="description" />
+    <Form method="post">
+      <input type="hidden" name="_action" value="update" />
       <input type="hidden" name="movementId" value={movement.id} />
       <input
         type="text"
         name="description"
+        ref={inputRef}
         defaultValue={movement.description}
         className="w-11/12 px-2 py-1"
         onBlur={handleBlur}
@@ -88,6 +148,14 @@ function MovementDate({
 }: {
   movement: LoaderData["movements"][number];
 }) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.value = movement.date;
+    }
+  }, [movement.date]);
+
   const submit = useSubmit();
   const handleBlur = useCallback(
     (event: FocusEvent<HTMLInputElement>) => {
@@ -106,12 +174,14 @@ function MovementDate({
   );
 
   return (
-    <Form method="patch" action="/movements/update">
+    <Form method="post">
+      <input type="hidden" name="_action" value="update" />
       <input type="hidden" name="attribute" value="date" />
       <input type="hidden" name="movementId" value={movement.id} />
       <input
         type="date"
         name="date"
+        ref={inputRef}
         defaultValue={movement.date}
         className="w-11/12 px-2 py-1"
         onBlur={handleBlur}
@@ -126,6 +196,14 @@ function MovementAmount({
 }: {
   movement: LoaderData["movements"][number];
 }) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.value = movement.amount.toString();
+    }
+  }, [movement.amount]);
+
   const submit = useSubmit();
   const handleBlur = useCallback(
     (event: FocusEvent<HTMLInputElement>) => {
@@ -144,12 +222,14 @@ function MovementAmount({
   );
 
   return (
-    <Form method="patch" action="/movements/update" className="text-right">
+    <Form method="post" className="text-right">
+      <input type="hidden" name="_action" value="update" />
       <input type="hidden" name="attribute" value="amount" />
       <input type="hidden" name="movementId" value={movement.id} />
       <input
         type="number"
         name="amount"
+        ref={inputRef}
         defaultValue={movement.amount}
         className="w-11/12 px-2 py-1 text-right"
         onBlur={handleBlur}
@@ -176,7 +256,8 @@ function MovementRow({
         <MovementAmount movement={movement} />
       </div>
       <div className="flex space-x-2 pl-4">
-        <Form action="/movements/create" method="post">
+        <Form method="post">
+          <input type="hidden" name="_action" value="create" />
           <input type="hidden" name="movementId" value={movement.id} />
           <button
             type="submit"
@@ -185,7 +266,8 @@ function MovementRow({
             Add Movement
           </button>
         </Form>
-        <Form action="/movements/delete" method="delete">
+        <Form method="post">
+          <input type="hidden" name="_action" value="delete" />
           <input type="hidden" name="movementId" value={movement.id} />
           <button
             type="submit"
