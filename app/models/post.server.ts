@@ -1,4 +1,4 @@
-import { Post, User } from "@prisma/client";
+import type { Post, User } from "@prisma/client";
 import { prisma } from "~/db.server";
 import { throwNotFoundResponse } from "~/utils";
 
