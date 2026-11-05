@@ -1,0 +1,11 @@
+body {
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  max-width: 40rem;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+
+pre {
+  overflow-x: auto;
+}

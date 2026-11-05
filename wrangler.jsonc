@@ -1,0 +1,10 @@
+{
+  "name": "blog",
+  "main": "worker.ts",
+  "compatibility_date": "2026-10-01",
+  // Files in public/ are served by Cloudflare directly, without running the Worker.
+  "assets": { "directory": "./public" },
+  // Turns posts/*.md into app/data/posts.generated.ts before every dev start and deploy,
+  // and again whenever a post changes during dev.
+  "build": { "command": "node scripts/build-posts.ts", "watch_dir": "posts" }
+}
